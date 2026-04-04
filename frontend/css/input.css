@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Components */
+.glass {
+  background: rgba(255,255,255,0.15); 
+  backdrop-filter: blur(20px); 
+  border: 1px solid rgba(255,255,255,0.25); 
+}
+
+.card-hover { 
+  transition: all 0.4s ease; 
+}
+
+.card-hover:hover { 
+  transform: translateY(-8px) scale(1.02); 
+  box-shadow: 0 25px 50px rgba(0,0,0,0.3); 
+}
+
+.hero-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd' stroke='%23fbbf24' stroke-width='2'%3E%3Cpath d='M30 30c0 16.569 16.569 0 35.138 35.138 0 35.138 35.138 0c-19.411 0-35.138-35.138-35.138 35.138 0v35.138c0 19.411 0 35.138 35.138 35.138 35.138 0z'/%3E%3C/svg%3E");
+  background-size: 60px 60px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .text-6xl {
+    font-size: 2.5rem;
+    line-height: 1.2;
+  }
+  
+  .text-8xl {
+    font-size: 3rem;
+    line-height: 1.2;
+  }
+  
+  .text-4xl {
+    font-size: 2.25rem;
+    line-height: 1.2;
+  }
+}

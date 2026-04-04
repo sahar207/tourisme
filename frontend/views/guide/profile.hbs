@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mon Profil Guide</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; padding: 20px; }
+    
+    .profile-container { max-width: 800px; margin: 0 auto; }
+    
+    /* HEADER */
+    .profile-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px 30px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      text-align: center;
+      position: relative;
+    }
+    
+    .profile-avatar-wrapper {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 20px;
+    }
+    
+    .profile-avatar {
+      width: 100%;
+      height: 100%;
+      background: rgba(255,255,255,0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3em;
+      border: 4px solid white;
+      object-fit: cover;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .profile-avatar:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(255,255,255,0.5);
+    }
+    
+    .profile-avatar img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    
+    .avatar-upload-btn {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background: #667eea;
+      border: 3px solid white;
+      color: white;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 1.2em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    }
+    
+    .avatar-upload-btn:hover {
+      background: #764ba2;
+      transform: scale(1.1);
+    }
+    
+    #avatarInput { display: none; }
+    
+    .profile-header h1 { font-size: 2em; margin-bottom: 10px; }
+    .profile-header p { font-size: 1em; opacity: 0.9; }
+    
+    /* STATUS BADGE */
+    .status-badge {
+      display: inline-block;
+      padding: 6px 15px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+    
+    .status-verified { background: rgba(40, 167, 69, 0.3); color: white; }
+    .status-pending { background: rgba(255, 193, 7, 0.3); color: white; }
+    
+    /* INFO CARDS */
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+    
+    .info-card {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      transition: all 0.3s;
+    }
+    
+    .info-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+    
+    .card-icon { font-size: 2em; margin-bottom: 10px; }
+    .card-label { color: #666; font-size: 0.9em; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .card-value { font-size: 1.3em; font-weight: 600; color: #333; }
+    .card-subtitle { color: #999; font-size: 0.85em; margin-top: 5px; }
+    
+    /* DOCUMENT CARD */
+    .document-card {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+      grid-column: 1 / -1;
+    }
+    
+    .doc-status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    
+    .doc-name { font-weight: 600; color: #333; }
+    .doc-badge {
+      padding: 5px 12px;
+      border-radius: 15px;
+      font-size: 0.85em;
+      font-weight: 600;
+    }
+    
+    .badge-approved { background: #d4edda; color: #155724; }
+    .badge-pending { background: #fff3cd; color: #856404; }
+    .badge-none { background: #f8f9fa; color: #666; }
+    
+    /* FORM SECTION */
+    .form-section {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+    
+    .form-section h3 {
+      font-size: 1.4em;
+      margin-bottom: 20px;
+      color: #333;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #667eea;
+    }
+    
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 600;
+      font-size: 0.95em;
+    }
+    
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 1em;
+      transition: all 0.3s;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-group textarea { resize: vertical; min-height: 120px; }
+    
+    /* BUTTONS */
+    .btn-container { display: flex; gap: 15px; margin-top: 25px; }
+    
+    .btn {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      flex: 1;
+    }
+    
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); }
+    
+    .btn-secondary {
+      background: white;
+      color: #667eea;
+      border: 2px solid #667eea;
+      flex: 1;
+    }
+    
+    .btn-secondary:hover { background: #f8f9fa; }
+    
+    .btn-success {
+      background: #28a745;
+      color: white;
+      flex: 1;
+    }
+    
+    .btn-success:hover { background: #218838; }
+    
+    .action-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 600;
+      padding: 8px 12px;
+      border-radius: 6px;
+      transition: all 0.3s;
+    }
+    
+    .action-link:hover { background: rgba(102, 126, 234, 0.1); }
+    
+    .message { padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 600; }
+    .message.success { background: #d4edda; color: #155724; border-left: 4px solid #28a745; }
+    .message.error { background: #f8d7da; color: #721c24; border-left: 4px solid #dc3545; }
+    
+    @media (max-width: 600px) {
+      .info-grid { grid-template-columns: 1fr; }
+      .profile-header { padding: 30px 20px; }
+      .btn-container { flex-direction: column; }
+    }
+    /* Modal / Lightbox for profile photo */
+    .photo-modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .photo-modal.open { display: flex; }
+    .photo-modal img {
+      max-width: 95%;
+      max-height: 95%;
+      border-radius: 8px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    }
+    .photo-modal .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      border: none;
+      font-size: 1.2em;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-container">
+    <!-- PROFILE HEADER -->
+    <div class="profile-header">
+      <div class="profile-avatar-wrapper">
+        {{#if user.photo_profil}}
+          <a id="profilePhotoLink" href="{{user.photo_profil}}" target="_blank">
+          <img src="{{user.photo_profil}}" alt="Photo profil" id="profilePhoto" class="profile-avatar">
+          </a>
+        {{else}}
+          <div class="profile-avatar" id="profilePhoto">👤</div>
+        {{/if}}
+        <button class="avatar-upload-btn" onclick="event.stopPropagation(); document.getElementById('avatarInput').click()" title="Changer la photo">📷</button>
+        <input type="file" id="avatarInput" accept="image/*" onclick="event.stopPropagation();">
+      </div>
+      <h1>{{user.nom_complet}}</h1>
+      <p>Guide Touristique en Tunisie</p>
+      <span class="status-badge status-verified">✅ Guide Vérifié</span>
+    </div>
+
+    <!-- INFO CARDS -->
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="card-icon">📧</div>
+        <div class="card-label">Email</div>
+        <div class="card-value">{{user.email}}</div>
+      </div>
+
+      <div class="info-card">
+        <div class="card-icon">📱</div>
+        <div class="card-label">Téléphone</div>
+        <div class="card-value">{{user.telephone}}</div>
+        <div class="card-subtitle">À mettre à jour ci-dessous</div>
+      </div>
+
+      <!-- SUBSCRIPTION -->
+      <div class="info-card">
+        <div class="card-icon">💳</div>
+        <div class="card-label">Abonnement</div>
+        {{#if guide.abonnement_actif}}
+          <div class="card-value" style="color: #28a745;">✅ Actif</div>
+          <div class="card-subtitle">Jusqu'au {{guide.abonnement_fin}}</div>
+        {{else}}
+          <div class="card-value" style="color: #dc3545;">Inactif</div>
+          <a href="/guide/abonnement/payer" class="action-link" style="margin-top: 10px;">Activer →</a>
+        {{/if}}
+      </div>
+
+      <!-- CV STATUS -->
+      <div class="info-card">
+        <div class="card-icon">📄</div>
+        <div class="card-label">CV Status</div>
+        {{#if guide.cv}}
+          {{#if guide.cv_approved}}
+            <div class="card-value" style="color: #28a745;">✅ Approuvé</div>
+            <a href="/{{guide.cv}}" target="_blank" class="action-link" style="margin-top: 10px;">Voir CV →</a>
+          {{else}}
+            <div class="card-value" style="color: #ffc107;">⏳ En validation</div>
+            <div class="card-subtitle">Vérifié par l'administrateur</div>
+          {{/if}}
+        {{else}}
+          <div class="card-value" style="color: #dc3545;">À uploader</div>
+          <a href="/guide/cv/upload" class="action-link" style="margin-top: 10px;">Upload CV →</a>
+        {{/if}}
+      </div>
+    </div>
+
+    <!-- CV & DOCUMENTS SECTION -->
+    <div class="document-card">
+      <h3 style="margin-bottom: 20px; font-size: 1.3em; color: #333;">📚 Documents</h3>
+      
+      {{#if guide.cv}}
+        <div class="doc-status">
+          <div>
+            <div class="doc-name">📄 CV</div>
+          </div>
+          <div>
+            <span class="doc-badge badge-{{#if guide.cv_approved}}approved{{else}}pending{{/if}}">
+              {{#if guide.cv_approved}}✅ Approuvé{{else}}⏳ En attente{{/if}}
+            </span>
+            <a href="/{{guide.cv}}" target="_blank" class="action-link" style="margin-left: 10px;">Voir</a>
+          </div>
+        </div>
+      {{else}}
+        <div class="doc-status">
+          <div>
+            <div class="doc-name">📄 CV</div>
+            <div class="card-subtitle">Aucun CV uploadé</div>
+          </div>
+          <a href="/guide/cv/upload" class="btn btn-primary" style="width: auto;">Upload CV</a>
+        </div>
+      {{/if}}
+
+      {{#if guide.diplome}}
+        <div class="doc-status">
+          <div>
+            <div class="doc-name">🎓 Diplôme</div>
+          </div>
+          <div>
+            <span class="doc-badge badge-{{#if guide.diplome_approved}}approved{{else}}pending{{/if}}">
+              {{#if guide.diplome_approved}}✅ Approuvé{{else}}⏳ En attente{{/if}}
+            </span>
+            <a href="/{{guide.diplome}}" target="_blank" class="action-link" style="margin-left: 10px;">Voir</a>
+          </div>
+        </div>
+      {{/if}}
+    </div>
+
+    <!-- UPDATE FORM -->
+    <div class="form-section">
+      <h3>✏️ Mettre à jour vos informations</h3>
+      
+      {{#if success}}<div class="message success">✅ {{success}}</div>{{/if}}
+      {{#if error}}<div class="message error">❌ {{error}}</div>{{/if}}
+      
+      <form action="/guide/profile/update" method="POST">
+        <div class="form-group">
+          <label for="telephone">📱 Téléphone</label>
+          <input type="tel" id="telephone" name="telephone" placeholder="Entrez votre numéro de téléphone" value="{{user.telephone}}" required>
+        </div>
+
+        <div class="form-group">
+          <label for="bio">✍️ Bio / Description</label>
+          <textarea id="bio" name="bio" placeholder="Parlez de vous, de votre expérience et de votre approche du tourisme...">{{user.bio}}</textarea>
+        </div>
+
+        <div class="btn-container">
+          <button type="submit" class="btn btn-primary">💾 Mettre à jour</button>
+          <a href="/guide/dashboard" class="btn btn-secondary">← Retour</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal element for viewing photo -->
+  <div id="photoModal" class="photo-modal" aria-hidden="true">
+    <button class="close-btn" id="photoModalClose">✕</button>
+    <img id="photoModalImg" src="" alt="Photo agrandie">
+  </div>
+
+  <script>
+    // Gestion upload photo de profil
+    async function handleAvatarUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) { alert('Veuillez sélectionner une image'); return; }
+      if (file.size > 5 * 1024 * 1024) { alert('La photo ne doit pas dépasser 5MB'); return; }
+
+      const formData = new FormData();
+      formData.append('photo', file);
+
+      try {
+        const response = await fetch('/guide/profile/photo', { method: 'POST', body: formData });
+        const data = await response.json();
+
+        if (data.success) {
+          const photoElement = document.getElementById('profilePhoto');
+          const img = new Image();
+          img.onload = function() {
+            // If current element is an <img>, update src and keep link if present
+            if (photoElement.tagName === 'IMG') {
+              photoElement.src = data.photoPath;
+              const link = document.getElementById('profilePhotoLink');
+              if (link) link.setAttribute('href', data.photoPath);
+            } else {
+              // Replace the div with an anchor containing the new img
+              const anchor = document.createElement('a');
+              anchor.id = 'profilePhotoLink';
+              anchor.setAttribute('href', data.photoPath);
+              anchor.setAttribute('target', '_blank');
+              anchor.setAttribute('rel', 'noopener');
+              const newImg = document.createElement('img');
+              newImg.src = data.photoPath;
+              newImg.alt = 'Photo profil';
+              newImg.id = 'profilePhoto';
+              newImg.className = 'profile-avatar';
+              anchor.appendChild(newImg);
+              photoElement.parentNode.replaceChild(anchor, photoElement);
+            }
+          };
+          img.src = data.photoPath;
+          // Update modal image src if open
+          const modalImg = document.getElementById('photoModalImg');
+          if (modalImg) modalImg.src = data.photoPath;
+          alert('✅ Photo mise à jour avec succès!');
+        } else {
+          alert('❌ ' + (data.error || 'Erreur lors du téléchargement'));
+        }
+      } catch (error) {
+        alert('❌ Erreur: ' + error.message);
+      }
+
+      e.target.value = '';
+    }
+
+    document.getElementById('avatarInput').addEventListener('change', handleAvatarUpload);
+
+    // Modal / lightbox handling
+    const profilePhotoContainer = document.querySelector('.profile-avatar-wrapper');
+
+    // Normalize src: handle cases where DB contains absolute Windows path
+    function normalizePhotoSrc(src) {
+      if (!src) return src;
+      const lower = src.toLowerCase();
+      if (lower.includes('c:') || lower.includes('\\')) {
+        const uploadsIdx = lower.indexOf('uploads/');
+        if (uploadsIdx !== -1) {
+          const rel = src.substr(uploadsIdx);
+          return '/' + rel.replace(/\\/g, '/');
+        }
+        const pubIdx = lower.indexOf('public/');
+        if (pubIdx !== -1) {
+          const rel = src.substr(pubIdx + 'public/'.length);
+          return '/' + rel.replace(/\\/g, '/');
+        }
+        return src.replace(/\\/g, '/');
+      }
+      return src;
+    }
+
+    function openPhotoModal(src) {
+      const modal = document.getElementById('photoModal');
+      const modalImg = document.getElementById('photoModalImg');
+      if (!modal || !modalImg) return;
+      const clean = normalizePhotoSrc(src);
+      modalImg.src = clean;
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closePhotoModal() {
+      const modal = document.getElementById('photoModal');
+      if (!modal) return;
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.getElementById('photoModalImg').src = '';
+    }
+
+    // Use container click so it works whether the avatar is a div or an img, and after replacements
+    if (profilePhotoContainer) {
+      profilePhotoContainer.style.cursor = 'zoom-in';
+      profilePhotoContainer.addEventListener('click', function(e) {
+        // Ignore clicks originating from the upload button or file input so they open the picker
+        if (e.target.closest('.avatar-upload-btn') || e.target.id === 'avatarInput') return;
+        const photo = document.getElementById('profilePhoto');
+        if (!photo) return;
+        let src = null;
+        // If wrapped in a link, prefer its href (absolute path)
+        const link = document.getElementById('profilePhotoLink');
+        if (link && link.getAttribute('href')) src = link.getAttribute('href');
+        else if (photo.tagName === 'IMG') src = photo.getAttribute('src');
+        if (!src) return;
+
+        // Allow middle-click or ctrl/cmd click to open in a new tab
+        if (e.button === 1 || e.ctrlKey || e.metaKey) {
+          // let the browser handle the navigation
+          return;
+        }
+
+        // Prevent following the link on normal left click, open modal instead
+        if (link) e.preventDefault();
+        openPhotoModal(src);
+      });
+    }
+
+    // Close handlers
+    document.getElementById('photoModalClose').addEventListener('click', closePhotoModal);
+    document.getElementById('photoModal').addEventListener('click', function(e) {
+      if (e.target === this) closePhotoModal();
+    });
+
+    // Keyboard escape
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closePhotoModal();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{gouvernorat.nom}} - Tunisie Authentique</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Travel Agency Theme Colors -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'travel-blue': '#1e3a8a',
+            'travel-sky': '#0ea5e9',
+            'travel-sand': '#fbbf24',
+            'travel-sunset': '#f97316',
+            'travel-olive': '#84cc16',
+            'travel-teal': '#14b8a6',
+            'travel-coral': '#fb7185'
+          },
+          fontFamily: {
+            'poppins': ['Poppins', 'sans-serif'],
+            'playfair': ['Playfair Display', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    .glass { 
+      background: rgba(255,255,255,0.1); 
+      backdrop-filter: blur(20px); 
+      border: 1px solid rgba(255,255,255,0.2); 
+    }
+    
+    .glass-dark { 
+      background: rgba(30,58,138,0.8); 
+      backdrop-filter: blur(20px); 
+      border: 1px solid rgba(255,255,255,0.1); 
+    }
+    
+    .travel-gradient {
+      background: linear-gradient(135deg, #1e3a8a 0%, #0ea5e9 50%, #14b8a6 100%);
+    }
+    
+    .travel-pattern {
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    
+    .card-hover { 
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+    }
+    
+    .card-hover:hover { 
+      transform: translateY(-8px) scale(1.02); 
+      box-shadow: 0 25px 50px rgba(0,0,0,0.3); 
+    }
+    
+    .text-shadow {
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body class="travel-gradient travel-pattern min-h-screen text-white">
+
+  <!-- Background Hero -->
+  <div class="fixed inset-0 z-0">
+    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80" 
+         alt="Tunisian Landscape" class="w-full h-full object-cover">
+    <div class="absolute inset-0 bg-gradient-to-b from-travel-blue/90 via-travel-blue/80 to-travel-teal/90"></div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="relative z-10 pt-24 pb-12">
+    <div class="max-w-7xl mx-auto px-6">
+      
+      <!-- Breadcrumb -->
+      <div class="mb-8">
+        <a href="/" class="inline-flex items-center px-6 py-3 glass-dark rounded-xl hover:bg-white/20 transition-all duration-300 border border-white/10">
+          <i class="fas fa-arrow-left mr-3 text-travel-sand"></i>
+          <span class="font-medium">Tous les Gouvernorats</span>
+        </a>
+      </div>
+      
+      <!-- Header Section -->
+      <section class="text-center mb-20">
+        <div class="mb-8">
+          <div class="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-travel-sand to-travel-sunset rounded-full mb-6 shadow-2xl">
+            <i class="fas fa-map-marked-alt text-4xl text-white"></i>
+          </div>
+        </div>
+        
+        <h1 class="font-playfair text-5xl md:text-7xl font-bold text-white mb-6 text-shadow">
+          {{gouvernorat.nom}}
+        </h1>
+        
+        <div class="flex items-center justify-center space-x-6 text-lg">
+          <div class="flex items-center space-x-2 px-6 py-3 glass-dark rounded-full border border-white/10">
+            <i class="fas fa-users text-travel-sand"></i>
+            <span class="font-medium">{{gouvernorat.nb_guides}} guide{{#if gouvernorat.nb_guides}}s{{/if}}</span>
+          </div>
+          <div class="flex items-center space-x-2 px-6 py-3 glass-dark rounded-full border border-white/10">
+            <i class="fas fa-map text-travel-sand"></i>
+            <span class="font-medium">{{delegations.length}} délégation{{#if delegations.length}}s{{/if}}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- LISTE DÉLÉGATIONS -->
+      {{#if delegations.length}}
+        <section class="mb-20">
+          <div class="text-center mb-16">
+            <h2 class="font-playfair text-4xl font-bold text-white mb-4">Explorez nos Délégations</h2>
+            <p class="text-gray-200 text-lg">Découvrez les trésors cachés de chaque région</p>
+          </div>
+          
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {{#each delegations}}
+            <a href="/touriste/delegation/{{../gouvernorat.id}}/{{id}}" 
+               class="glass-dark rounded-3xl overflow-hidden card-hover border border-white/10 group">
+              
+              <!-- Image Délégation -->
+              <div class="relative h-56 overflow-hidden">
+                {{#if image}}
+                  <img src="{{image}}" alt="{{nom}}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                {{else}}
+                  <div class="w-full h-full bg-gradient-to-br from-travel-sky to-travel-teal flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                    <i class="fas fa-map-marked-alt text-6xl text-white/60"></i>
+                  </div>
+                {{/if}}
+                <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+              </div>
+              
+              <!-- Content -->
+              <div class="p-8">
+                <!-- Nom -->
+                <h3 class="font-playfair text-2xl font-bold text-white mb-4 text-center group-hover:text-travel-sand transition-colors">
+                  {{nom}}
+                </h3>
+                
+                <!-- Description -->
+                {{#if description}}
+                  <p class="text-gray-200 text-center mb-6 leading-relaxed">{{description}}</p>
+                {{/if}}
+                
+                <!-- Guides Count -->
+                <div class="flex items-center justify-center space-x-4 text-lg">
+                  <div class="flex items-center space-x-2 px-4 py-2 bg-travel-sand/20 rounded-full">
+                    <i class="fas fa-user-tie text-travel-sand"></i>
+                    <span class="font-medium">{{nbGuides}} guide{{#if nbGuides}}s{{/if}}</span>
+                  </div>
+                </div>
+                
+                <!-- Explore Button -->
+                <div class="mt-6 text-center">
+                  <span class="inline-flex items-center px-6 py-3 bg-travel-sand hover:bg-travel-sunset text-travel-blue font-bold rounded-full transition-all duration-300 shadow-lg hover:shadow-travel-sunset/25">
+                    Explorer
+                    <i class="fas fa-arrow-right ml-2"></i>
+                  </span>
+                </div>
+              </div>
+            </a>
+            {{/each}}
+          </div>
+        </section>
+      {{else}}
+        <section class="text-center py-20">
+          <div class="glass-dark rounded-3xl p-12 max-w-2xl mx-auto border border-white/10">
+            <i class="fas fa-map text-6xl text-gray-400 mb-6"></i>
+            <h3 class="font-playfair text-3xl font-bold text-white mb-4">Délégations Bientôt Disponibles</h3>
+            <p class="text-gray-200 text-lg">Nous travaillons à répertorier toutes les délégations de {{gouvernorat.nom}}</p>
+          </div>
+        </section>
+      {{/if}}
+    </div>
+  </div>
+
+</body>
+</html>

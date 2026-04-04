@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>💬 Messagerie Admin Moderne</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    
+    body { 
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Animated Background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+      animation: float 20s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33% { transform: translate(30px, -30px) rotate(120deg); }
+      66% { transform: translate(-20px, 20px) rotate(240deg); }
+    }
+    
+    /* Modern Color Palette */
+    .glass-morphism {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 24px;
+    }
+    
+    .conversation-item {
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      border-radius: 20px;
+      margin: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .conversation-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+      transition: left 0.6s;
+    }
+    
+    .conversation-item:hover::before {
+      left: 100%;
+    }
+    
+    .conversation-item:hover {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(20px);
+      transform: translateX(12px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+      border-color: rgba(102, 126, 234, 0.3);
+    }
+    
+    .conversation-item.active {
+      background: rgba(102, 126, 234, 0.15);
+      backdrop-filter: blur(20px);
+      border-color: rgba(102, 126, 234, 0.4);
+      box-shadow: 0 20px 40px rgba(102, 126, 234, 0.4);
+      transform: scale(1.05);
+    }
+    
+    .message-bubble {
+      max-width: 70%;
+      word-wrap: break-word;
+      animation: messageSlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    @keyframes messageSlideIn {
+      from { 
+        opacity: 0; 
+        transform: translateY(30px) scale(0.8) rotateX(10deg); 
+      }
+      to { 
+        opacity: 1; 
+        transform: translateY(0) scale(1) rotateX(0deg); 
+      }
+    }
+    
+    .message-admin {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 28px 28px 12px 28px;
+      margin-left: auto;
+      box-shadow: 
+        0 10px 30px rgba(102, 126, 234, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      position: relative;
+    }
+    
+    .message-admin::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 20px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      backdrop-filter: blur(10px);
+    }
+    
+    .message-guide {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      color: #1a202c;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 28px 28px 28px 12px;
+      box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(0, 0, 0, 0.05);
+    }
+    
+    .status-ACTIF { 
+      color: #4ade80; 
+      font-weight: 600;
+      text-shadow: 0 0 10px rgba(74, 222, 128, 0.3);
+    }
+    .status-EN_ATTENTE { 
+      color: #fbbf24; 
+      font-weight: 600;
+      text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+    }
+    .status-BLOQUE { 
+      color: #f87171; 
+      font-weight: 600;
+      text-shadow: 0 0 10px rgba(248, 113, 113, 0.3);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+    }
+    
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.6s;
+    }
+    
+    .btn-primary:hover::before {
+      left: 100%;
+    }
+    
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+      box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+      transform: translateY(-3px) scale(1.05);
+    }
+    
+    .avatar-gradient {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .avatar-gradient::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(from 0deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      animation: rotate 4s linear infinite;
+    }
+    
+    @keyframes rotate {
+      100% { transform: rotate(360deg); }
+    }
+    
+    .input-professional {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      border: 2px solid rgba(102, 126, 234, 0.2);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 20px;
+      color: white;
+    }
+    
+    .input-professional::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .input-professional:focus {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: #667eea;
+      box-shadow: 
+        0 0 0 4px rgba(102, 126, 234, 0.2),
+        0 10px 30px rgba(102, 126, 234, 0.2);
+      transform: translateY(-2px);
+    }
+    
+    .scrollbar-custom::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .scrollbar-custom::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+    
+    .scrollbar-custom::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    }
+    
+    .empty-state {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 2px dashed rgba(102, 126, 234, 0.2);
+      border-radius: 32px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Floating elements */
+    .floating-shape {
+      position: fixed;
+      pointer-events: none;
+      opacity: 0.1;
+      animation: float-shape 15s ease-in-out infinite;
+    }
+    
+    @keyframes float-shape {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(180deg); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Floating decorative elements -->
+  <div class="floating-shape" style="top: 10%; left: 10%; width: 100px; height: 100px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%;"></div>
+  <div class="floating-shape" style="top: 70%; right: 15%; width: 60px; height: 60px; background: linear-gradient(135deg, #764ba2, #667eea); border-radius: 30%;"></div>
+  
+  <div class="glass-morphism p-8 max-w-7xl mx-auto relative z-10">
+    <!-- Header -->
+    <div class="glass-morphism p-8 mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-4xl font-black text-white mb-2 drop-shadow-lg">💬 Messages from Guides</h1>
+          <p class="text-xl text-white/80">Welcome, {{user.nom_complet}} 👋</p>
+        </div>
+        <a href="/admin/dashboard" class="btn-primary text-white px-8 py-4 rounded-2xl font-bold text-xl">
+          🏠 Dashboard Admin
+        </a>
+      </div>
+    </div>
+
+    <!-- Messages List -->
+    <div class="glass-morphism p-8">
+      {{#each messages}}
+      <div class="conversation-item p-6">
+        <div class="sender-info mb-4">
+          <strong class="text-xl text-white">{{sender_name}}</strong> 
+          {{#if guide_status}}<span class="status-{{guide_status}} ml-2">({{guide_status}})</span>{{/if}}
+          <span class="text-white/60 text-sm ml-4">{{formatDate date_creation}}</span>
+        </div>
+        
+        <p class="text-lg mb-4 text-white">{{contenu}}</p>
+        
+        {{#if (eq id_destinataire ../user.id)}}
+        <!-- Reply form -->
+        <form method="POST" action="/admin/reply-message" class="glass-morphism p-4">
+          <input type="hidden" name="message_id" value="{{id}}">
+          <input type="hidden" name="guide_id" value="{{id_expediteur}}">
+          <div class="flex gap-4">
+            <textarea name="reply" placeholder="Your reply..." required
+                      class="input-professional flex-1 p-4 resize-none" 
+                      rows="2"></textarea>
+            <button type="submit" class="btn-primary text-white px-6 py-3 font-bold">
+              Send Reply
+            </button>
+          </div>
+        </form>
+        {{/if}}
+      </div>
+      {{else}}
+      <div class="text-center py-20">
+        <div class="text-6xl mb-4 text-white/60">📨</div>
+        <div class="text-2xl text-white/80">No messages yet</div>
+        <p class="text-lg mt-4 text-white/60">Guides will appear here when they send you messages</p>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+
+  <script>
+    // Auto-refresh every 10 seconds
+    setInterval(() => {
+      location.reload();
+    }, 10000);
+    
+    // Add keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        window.location.href = '/admin/dashboard';
+      }
+    });
+  </script>
+</body>
+</html>

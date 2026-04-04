@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{title}} | Tunisie Authentique</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Modern Nature-Inspired Theme -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'ocean-blue': '#0077FF',
+            'ocean-light': '#00A8FF',
+            'ocean-dark': '#0056CC',
+            'sand-dune': '#FFE5B4',
+            'sand-warm': '#FFD700',
+            'mountain-gray': '#8B9DC3',
+            'mountain-dark': '#4A5568',
+            'desert-orange': '#FF6B35',
+            'desert-pink': '#FF1493',
+            'city-teal': '#00CED1',
+            'city-navy': '#2C3E50',
+            'sage-green': '#32CD32',
+            'lavender': '#E6E6FA',
+            'coral': '#FF7F50',
+            'mist': '#F0F4F8',
+            'neon-purple': '#9D4EDD',
+            'neon-cyan': '#00FFFF',
+            'vibrant-pink': '#FF69B4'
+          },
+          fontFamily: {
+            'inter': ['Inter', 'sans-serif'],
+            'playfair': ['Playfair Display', 'serif'],
+            'space': ['Space Grotesk', 'sans-serif']
+          },
+          spacing: {
+            '18': '4.5rem',
+            '88': '22rem',
+            '128': '32rem',
+            '112': '28rem'
+          },
+          animation: {
+            'float': 'float 6s ease-in-out infinite',
+            'wave': 'wave 10s linear infinite',
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'slide-up': 'slideUp 0.8s ease-out',
+            'fade-in': 'fadeIn 1.2s ease-out',
+            'scale-in': 'scaleIn 0.6s ease-out'
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-20px)' }
+            },
+            wave: {
+              '0%': { transform: 'translateX(0)' },
+              '100%': { transform: 'translateX(-100%)' }
+            },
+            slideUp: {
+              '0%': { transform: 'translateY(50px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' }
+            },
+            slideDown: {
+              '0%': { transform: 'translateY(-100%)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' }
+            },
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' }
+            },
+            scaleIn: {
+              '0%': { transform: 'scale(0.9)', opacity: '0' },
+              '100%': { transform: 'scale(1)', opacity: '1' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .glass-morphism { 
+      background: rgba(255, 255, 255, 0.08); 
+      backdrop-filter: blur(20px); 
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+    }
+    
+    .glass-dark { 
+      background: rgba(30, 58, 95, 0.7); 
+      backdrop-filter: blur(25px); 
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.3);
+    }
+    
+    .nature-gradient {
+      background: linear-gradient(135deg, #0066CC 0%, #4A90E2 25%, #87A96B 50%, #FF6B35 75%, #1E3A5F 100%);
+    }
+    
+    .ocean-gradient {
+      background: linear-gradient(135deg, #0066CC 0%, #4A90E2 50%, #008B8B 100%);
+    }
+    
+    .desert-gradient {
+      background: linear-gradient(135deg, #FF6B35 0%, #F4E4C1 50%, #FF8FA3 100%);
+    }
+    
+    .mountain-gradient {
+      background: linear-gradient(135deg, #6B7280 0%, #374151 50%, #1E3A5F 100%);
+    }
+    
+    .sage-gradient {
+      background: linear-gradient(135deg, #32CD32 0%, #228B22 50%, #006400 100%);
+    }
+    
+    .nature-pattern {
+      background-image: 
+        radial-gradient(circle at 20% 80%, rgba(255, 107, 53, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(0, 102, 204, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(135, 169, 107, 0.05) 0%, transparent 50%);
+    }
+    
+    .card-hover { 
+      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1); 
+    }
+    
+    .card-hover:hover { 
+      transform: translateY(-12px) scale(1.03); 
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(0, 102, 204, 0.1);
+    }
+    
+    .text-shadow-glow {
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .button-glow {
+      box-shadow: 0 4px 15px rgba(0, 102, 204, 0.3);
+      transition: all 0.3s ease;
+    }
+    
+    .button-glow:hover {
+      box-shadow: 0 6px 25px rgba(0, 102, 204, 0.5);
+      transform: translateY(-2px);
+    }
+    
+    .floating-element {
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    .wave-animation {
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      animation: wave 10s linear infinite;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-white to-green-50 min-h-screen text-gray-900 overflow-x-hidden">
+
+  <!-- Navigation -->
+  {{> navbar}}
+
+  <!-- MAIN CONTENT -->
+  <main class="min-h-screen animate-fade-in">
+    {{{body}}}
+  </main>
+
+  <!-- Footer -->
+  {{> footer}}
+</body>
+</html>

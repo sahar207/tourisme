@@ -1,0 +1,119 @@
+<nav class="glass-morphism fixed top-0 w-full z-50 px-6 py-4 shadow-2xl animate-slide-down border border-gray-200">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex items-center justify-between">
+      <!-- Logo with nature theme -->
+      <div class="flex items-center space-x-4">
+        <a href="/" class="flex items-center space-x-3 group">
+          <div class="w-12 h-12 ocean-gradient rounded-2xl flex items-center justify-center shadow-lg floating-element">
+            <i class="fas fa-compass text-white text-xl"></i>
+          </div>
+          <div class="hidden md:block">
+            <h1 class="font-playfair text-2xl font-bold text-gray-900">Tunisie</h1>
+            <p class="text-xs text-ocean-blue font-medium">Authentique</p>
+          </div>
+        </a>
+      </div>
+      
+      <!-- Desktop Navigation -->
+      <div class="hidden lg:flex items-center space-x-8">
+        <!-- Main Navigation -->
+        <div class="flex items-center space-x-6">
+          <a href="/" class="text-gray-900 hover:text-ocean-blue transition-colors duration-300 font-medium flex items-center space-x-2">
+            <i class="fas fa-home text-sm"></i>
+            <span>Accueil</span>
+          </a>
+          <a href="/touriste/gouvernorat/1" class="text-gray-900 hover:text-ocean-blue transition-colors duration-300 font-medium flex items-center space-x-2">
+            <i class="fas fa-map-marked-alt text-sm"></i>
+            <span>Destinations</span>
+          </a>
+          <a href="/plans" class="text-gray-900 hover:text-ocean-blue transition-colors duration-300 font-medium flex items-center space-x-2">
+            <i class="fas fa-route text-sm"></i>
+            <span>Circuits</span>
+          </a>
+          <a href="/guides" class="text-gray-900 hover:text-ocean-blue transition-colors duration-300 font-medium flex items-center space-x-2">
+            <i class="fas fa-user-tie text-sm"></i>
+            <span>Guides</span>
+          </a>
+        </div>
+        
+        <!-- User Actions -->
+        <div class="flex items-center space-x-4">
+          {{#if user}}
+            <!-- Notifications -->
+            <div class="relative">
+              <button class="text-gray-700 hover:text-ocean-blue transition-colors duration-300 p-2 rounded-lg hover:bg-gray-50">
+                <i class="fas fa-bell text-lg"></i>
+                <span class="absolute -top-1 -right-1 w-5 h-5 desert-orange rounded-full text-xs font-bold flex items-center justify-center text-white">3</span>
+              </button>
+            </div>
+            
+            <!-- Messages -->
+            <a href="/messages" class="text-gray-700 hover:text-ocean-blue transition-colors duration-300 p-2 rounded-lg hover:bg-gray-50">
+              <i class="fas fa-envelope text-lg"></i>
+            </a>
+            
+            <!-- User Menu -->
+            <div class="relative group">
+              <button class="flex items-center space-x-2 text-gray-700 hover:text-ocean-blue transition-colors duration-300 p-2 rounded-lg hover:bg-gray-50">
+                {{#if user.photo_profil}}
+                  <img src="{{user.photo_profil}}" alt="{{user.nom_complet}}" class="w-8 h-8 rounded-full object-cover border-2 border-ocean-blue">
+                {{else}}
+                  <div class="w-8 h-8 rounded-full bg-gradient-to-br from-ocean-blue to-sage-green flex items-center justify-center">
+                    <i class="fas fa-user text-white text-sm"></i>
+                  </div>
+                {{/if}}
+                <span class="hidden md:block font-medium text-gray-900">{{user.nom_complet}}</span>
+                <i class="fas fa-chevron-down text-xs text-gray-500"></i>
+              </button>
+              
+              <!-- Dropdown Menu -->
+              <div class="absolute right-0 mt-2 glass-morphism rounded-2xl border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2">
+                {{#if (eq user.role 'ADMIN')}}
+                  <a href="/admin/dashboard" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors duration-300">
+                    <i class="fas fa-tachometer-alt mr-3 text-desert-orange"></i>
+                    Tableau de bord
+                  </a>
+                {{/if}}
+                {{#if (eq user.role 'GUIDE')}}
+                  <a href="/guide/dashboard" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors duration-300">
+                    <i class="fas fa-tachometer-alt mr-3 text-ocean-blue"></i>
+                    Mon Espace
+                  </a>
+                {{/if}}
+                {{#if (eq user.role 'TOURISTE')}}
+                  <a href="/touriste/dashboard" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors duration-300">
+                    <i class="fas fa-tachometer-alt mr-3 text-sage-green"></i>
+                    Mon Espace
+                  </a>
+                {{/if}}
+                <a href="/profile" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors duration-300">
+                  <i class="fas fa-user mr-3 text-ocean-blue"></i>
+                  Profil
+                </a>
+                <a href="/logout" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors duration-300">
+                  <i class="fas fa-sign-out-alt mr-3 text-desert-orange"></i>
+                  Déconnexion
+                </a>
+              </div>
+            </div>
+          {{else}}
+            <!-- Login/Register Buttons -->
+            <a href="/login" class="glass-morphism px-6 py-2 rounded-2xl font-medium hover:bg-gray-50 transition-all duration-300 border border-gray-200 text-gray-700 button-glow">
+              <i class="fas fa-sign-in-alt mr-2"></i>
+              Connexion
+            </a>
+            <a href="/inscription" class="desert-gradient px-6 py-2 rounded-2xl font-medium text-white button-glow">
+              <i class="fas fa-user-plus mr-2"></i>
+              Inscription
+            </a>
+          {{/if}}
+        </div>
+      </div>
+      
+      <!-- Mobile Menu Button -->
+      <button class="lg:hidden text-gray-700 hover:text-ocean-blue transition-colors duration-300 p-2 rounded-lg hover:bg-gray-50">
+        <i class="fas fa-bars text-xl"></i>
+      </button>
+    </div>
+  </div>
+</nav>

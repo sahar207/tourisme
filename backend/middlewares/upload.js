@@ -1,0 +1,54 @@
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+// Stockage pour les CV et diplômes
+const docsStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    let subfolder = '';
+    if (file.fieldname === 'cv') subfolder = 'cv';
+    else if (file.fieldname === 'diplome') subfolder = 'diplome';
+    const dir = path.join(__dirname, '../frontend/public/uploads', subfolder);
+    fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + '-' + file.originalname.replace(/\s+/g, '_'));
+  }
+});
+
+exports.docs = multer({
+  storage: docsStorage,
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'application/pdf') {
+      cb(null, true);
+    } else {
+      cb(new Error('PDF uniquement'), false);
+    }
+  }
+});
+
+// Stockage pour les photos de profil
+const photoStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = path.join(__dirname, '../frontend/public/uploads/photos-profil');
+    fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    const ext = file.originalname.split('.').pop();
+    const uniqueName = `guide-${req.session.user.id}-${Date.now()}.${ext}`;
+    cb(null, uniqueName);
+  }
+});
+
+exports.photo = multer({
+  storage: photoStorage,
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith('image/')) {
+      return cb(new Error('Le fichier doit être une image'), false);
+    }
+    cb(null, true);
+  },
+  limits: { fileSize: 5 * 1024 * 1024 }
+});

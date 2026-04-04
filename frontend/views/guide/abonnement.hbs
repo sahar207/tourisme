@@ -1,0 +1,14 @@
+<div class="container mt-4">
+  <h2>Abonnement guide</h2>
+  {{#if user.abonnement_actif}}
+    <div class="alert alert-success">
+      ✅ Abonnement actif jusqu'au {{formatDate user.abonnement_fin}}
+    </div>
+    <a href="/guide/create-plan" class="btn btn-primary">Créer un plan</a>
+  {{else}}
+    <div class="alert alert-warning">
+      ⚠️ Vous n'avez pas d'abonnement actif. Veuillez procéder au paiement.
+    </div>
+    <a href="/guide/paiement" class="btn btn-success">Activer mon abonnement (30 TND)</a>
+  {{/if}}
+</div>

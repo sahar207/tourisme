@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{delegation.nom}} - {{gouvernorat.nom}}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .glass { background: rgba(255,255,255,0.1); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.2); }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-emerald-600 to-teal-600 min-h-screen text-white p-8">
+  
+  <!-- Breadcrumb -->
+  <nav class="mb-12">
+    <a href="/" class="inline-flex items-center bg-white/20 px-6 py-3 rounded-xl hover:bg-white/30">
+      <i class="fas fa-home mr-2"></i>Accueil
+    </a>
+    <a href="/touriste/gouvernorat/{{gouvernorat.id}}" class="inline-flex items-center bg-white/20 px-6 py-3 rounded-xl hover:bg-white/30 ml-3">
+      {{gouvernorat.nom}}
+    </a>
+  </nav>
+
+  <!-- Header Délégation -->
+  <div class="max-w-4xl mx-auto text-center mb-16">
+    <h1 class="text-5xl font-bold mb-6 drop-shadow-2xl">{{delegation.nom}}</h1>
+    <p class="text-2xl opacity-90">Délégation de <span class="text-yellow-400 font-bold">{{gouvernorat.nom}}</span></p>
+  </div>
+
+  <!-- Guides -->
+  {{#if guides.length}}
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-4xl font-bold text-center mb-12">Guides Disponibles</h2>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {{#each guides}}
+        <div class="glass rounded-3xl p-8 hover:-translate-y-2 transition-all">
+          <h3 class="text-2xl font-bold mb-4">{{nom_complet}}</h3>
+          <div class="space-y-3 mb-8">
+            {{#if telephone}}
+              <div class="flex items-center"><i class="fas fa-phone mr-3 text-emerald-400"></i>{{telephone}}</div>
+            {{/if}}
+            {{#if email}}
+              <div class="flex items-center"><i class="fas fa-envelope mr-3 text-emerald-400"></i>{{email}}</div>
+            {{/if}}
+          </div>
+          <div class="flex gap-4">
+            <a href="mailto:{{email}}" class="flex-1 bg-white/20 px-6 py-3 rounded-xl text-center font-bold">Contacter</a>
+            <button onclick="navigator.clipboard.writeText('{{telephone}}')" 
+                    class="flex-1 bg-gradient-to-r from-emerald-400 to-teal-500 text-white px-6 py-3 rounded-xl font-bold">
+              <i class="fas fa-copy mr-2"></i>Copier Tel
+            </button>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+  {{else}}
+    <div class="text-center py-20 max-w-2xl mx-auto">
+      <i class="fas fa-map-marked-alt text-8xl text-white/50 mb-8"></i>
+      <h2 class="text-3xl font-bold mb-4">Aucun guide pour le moment</h2>
+      <p class="text-xl opacity-80 mb-8">Les guides seront bientôt disponibles dans {{delegation.nom}}</p>
+    </div>
+  {{/if}}
+
+</body>
+</html>

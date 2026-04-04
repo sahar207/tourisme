@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Gestion des Guides - Admin</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f6fa; }
+    
+    .admin-container { display: flex; height: 100vh; }
+    
+    /* SIDEBAR GAUCHE */
+    .sidebar { 
+      width: 250px; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+      color: white; 
+      padding: 20px 0;
+    }
+    .sidebar h2 { text-align: center; margin-bottom: 30px; font-size: 1.4em; }
+    .nav-btn { 
+      display: block; width: 100%; padding: 15px 25px; 
+      color: white; text-decoration: none; border: none; 
+      background: transparent; text-align: left; cursor: pointer;
+      transition: all 0.3s; font-size: 1.1em;
+    }
+    .nav-btn:hover, .nav-btn.active { 
+      background: rgba(255,255,255,0.2); 
+      transform: translateX(10px); 
+    }
+    
+    /* CONTENU PRINCIPAL */
+    .main-content { flex: 1; padding: 20px; overflow-y: auto; }
+    .header { 
+      background: white; padding: 20px; 
+      border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;
+    }
+    
+    /* STATS CARDS */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .stat-card { 
+      background: white; padding: 25px; border-radius: 15px; 
+      text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      transition: transform 0.3s;
+    }
+    .stat-card:hover { transform: translateY(-5px); }
+    .stat-number { font-size: 2.5em; font-weight: bold; color: #667eea; }
+    .stat-label { color: #666; margin-top: 5px; }
+    
+    /* TABLEAU GUIDES */
+    .guides-container { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+    .filters { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+    .filter-btn { 
+      padding: 8px 15px; border: 1px solid #ddd; border-radius: 5px; 
+      background: white; cursor: pointer; transition: all 0.3s;
+    }
+    .filter-btn.active { background: #667eea; color: white; }
+    .filter-btn:hover { background: #f0f0f0; }
+    
+    .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .table th, .table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+    .table th { background: #f8f9fa; font-weight: 600; color: #333; }
+    .guide-avatar { 
+      width: 40px; height: 40px; border-radius: 50%; 
+      background: linear-gradient(135deg, #3498db, #2980b9); 
+      color: white; display: flex; align-items: center; 
+      justify-content: center; font-weight: bold; font-size: 0.9em;
+    }
+    .status-badge { 
+      padding: 4px 8px; border-radius: 12px; font-size: 0.8em; 
+      font-weight: 600; text-transform: uppercase;
+    }
+    .status-actif { background: #28a745; color: white; }
+    .status-attente { background: #ffc107; color: #333; }
+    .status-bloque { background: #dc3545; color: white; }
+    .status-inactif { background: #6c757d; color: white; }
+    
+    .btn { 
+      padding: 6px 12px; border: none; border-radius: 4px; 
+      cursor: pointer; font-size: 0.8em; margin: 2px;
+      transition: all 0.3s; text-decoration: none; display: inline-block;
+    }
+    .btn-view { background: #667eea; color: white; }
+    .btn-edit { background: #28a745; color: white; }
+    .btn-danger { background: #dc3545; color: white; }
+    .btn-success { background: #28a745; color: white; }
+    .btn:hover { transform: translateY(-2px); opacity: 0.9; }
+    
+    .cv-link { color: #667eea; text-decoration: none; }
+    .cv-link:hover { text-decoration: underline; }
+    
+    @media (max-width: 768px) {
+      .admin-container { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; }
+      .main-content { padding: 10px; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .filters { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <!-- SIDEBAR GAUCHE -->
+    <div class="sidebar">
+      <h2>🏛️ Admin Panel</h2>
+      <a href="/admin/dashboard" class="nav-btn">📊 Dashboard</a>
+      <a href="/admin/guides" class="nav-btn active">👥 Gestion Guides</a>
+      <a href="/admin/validation-guides" class="nav-btn">✅ Validation</a>
+      <a href="/admin/messages" class="nav-btn">💬 Messages</a>
+      <a href="/admin/notifications" class="nav-btn">🔔 Notifications</a>
+      <a href="/logout" class="nav-btn">🚪 Déconnexion</a>
+    </div>
+
+    <!-- CONTENU PRINCIPAL -->
+    <div class="main-content">
+      <!-- HEADER -->
+      <div class="header">
+        <h1>👥 Gestion des Guides</h1>
+        <div>Bienvenue, {{user.nom_complet}} 👋</div>
+      </div>
+
+      <!-- STATS -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number">{{stats.total}}</div>
+          <div class="stat-label">Total Guides</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{stats.actifs}}</div>
+          <div class="stat-label">Guides Actifs</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{stats.en_attente}}</div>
+          <div class="stat-label">En Attente</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{stats.avec_cv}}</div>
+          <div class="stat-label">Avec CV</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{stats.abonnes}}</div>
+          <div class="stat-label">Abonnés</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{stats.non_abonnes}}</div>
+          <div class="stat-label">Non Abonnés</div>
+        </div>
+      </div>
+
+      <!-- GUIDES -->
+      <div class="guides-container">
+        <h2 style="margin-bottom: 20px;">📋 Liste Complète des Guides</h2>
+        
+        <!-- FILTRES -->
+        <div class="filters">
+          <button class="filter-btn active" onclick="filterGuides('all')">Tous ({{stats.total}})</button>
+          <button class="filter-btn" onclick="filterGuides('actifs')">Actifs ({{stats.actifs}})</button>
+          <button class="filter-btn" onclick="filterGuides('attente')">En Attente ({{stats.en_attente}})</button>
+          <button class="filter-btn" onclick="filterGuides('avec_cv')">Avec CV ({{stats.avec_cv}})</button>
+          <button class="filter-btn" onclick="filterGuides('abonnes')">Abonnés ({{stats.abonnes}})</button>
+          <button class="filter-btn" onclick="filterGuides('non_abonnes')">Non Abonnés ({{stats.non_abonnes}})</button>
+        </div>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Avatar</th>
+              <th>Nom</th>
+              <th>Email</th>
+              <th>Date</th>
+              <th>Statut</th>
+              <th>CV</th>
+              <th>Abonnement</th>
+              <th>Plans</th>
+              <th>Avis</th>
+              <th>Note</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each guides}}
+            <tr class="guide-row" data-status="{{this.statut}}" data-cv="{{this.cv_approved}}" data-abonnement="{{this.abonnement_actif}}">
+              <td>
+                <div class="guide-avatar">{{this.avatar_letter}}</div>
+              </td>
+              <td>
+                <div style="font-weight: 600;">{{this.nom_complet}}</div>
+                <small style="color: #7f8c8d;">ID: {{this.id}}</small>
+              </td>
+              <td>{{this.email}}</td>
+              <td>{{formatDate this.date_creation}}</td>
+              <td>
+                {{#if this.statut}}
+                  {{#if (this.statut === 'ACTIF')}}
+                    <span class="status-badge status-actif">✅ Actif</span>
+                  {{else}}
+                    <span class="status-badge status-bloque">❌ Bloqué</span>
+                  {{/if}}
+                {{/if}}
+              </td>
+              <td>
+                {{#if this.cv}}
+                  {{#if (this.cv_approved === 1)}}
+                    <span class="status-badge status-actif">✅ Validé</span>
+                  {{else}}
+                    <span class="status-badge status-attente">⏳ En Attente</span>
+                  {{/if}}
+                {{else}}
+                  <span class="status-badge status-inactif">❌ Aucun</span>
+                {{/if}}
+              </td>
+              <td>
+                {{#if (this.abonnement_actif === 1)}}
+                  <span class="status-badge status-actif">✅ Actif</span>
+                {{else}}
+                  <span class="status-badge status-inactif">❌ Inactif</span>
+                {{/if}}
+              </td>
+              <td>{{this.nb_plans}}</td>
+              <td>{{this.nb_avis}}</td>
+              <td>
+                {{#if this.moyenne_avis}}
+                  ⭐ {{this.moyenne_avis}}
+                {{else}}
+                  -
+                {{/if}}
+              </td>
+              <td>
+                <button class="btn btn-view" onclick="viewGuide({{this.id}})">👁️ Voir</button>
+                {{#if (this.statut === 'ACTIF')}}
+                  <button class="btn btn-danger" onclick="blockGuide({{this.id}})">🚫 Bloquer</button>
+                {{else}}
+                  <button class="btn btn-success" onclick="activateGuide({{this.id}})">✅ Activer</button>
+                {{/if}}
+                <button class="btn btn-danger" onclick="deleteGuide({{this.id}})">🗑️ Supprimer</button>
+              </td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function filterGuides(type) {
+      const rows = document.querySelectorAll('.guide-row');
+      const buttons = document.querySelectorAll('.filter-btn');
+      
+      // Update buttons
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      // Filter rows
+      rows.forEach(row => {
+        let show = false;
+        const status = row.dataset.status;
+        const cv = row.dataset.cv;
+        const abonnement = row.dataset.abonnement;
+        
+        switch(type) {
+          case 'all':
+            show = true;
+            break;
+          case 'actifs':
+            show = status === 'ACTIF' && cv === '1';
+            break;
+          case 'attente':
+            show = cv === '0' && row.querySelector('td:nth-child(5)').textContent.includes('En Attente');
+            break;
+          case 'avec_cv':
+            show = row.querySelector('td:nth-child(5)').textContent.includes('Validé') || row.querySelector('td:nth-child(5)').textContent.includes('En Attente');
+            break;
+          case 'abonnes':
+            show = abonnement === '1';
+            break;
+          case 'non_abonnes':
+            show = abonnement === '0' || abonnement === 'false';
+            break;
+        }
+        
+        row.style.display = show ? '' : 'none';
+      });
+    }
+
+    function viewGuide(id) {
+      window.location.href = `/admin/guides/${id}`;
+    }
+
+    function blockGuide(id) {
+      if (confirm('Bloquer ce guide ?')) {
+        fetch(`/admin/guides/${id}/bloquer`, { method: 'POST' })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              location.reload();
+            } else {
+              alert('Erreur: ' + data.error);
+            }
+          })
+          .catch(error => console.error('Erreur:', error));
+      }
+    }
+
+    function activateGuide(id) {
+      if (confirm('Activer ce guide ?')) {
+        fetch(`/admin/guides/${id}/activer`, { method: 'POST' })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              location.reload();
+            } else {
+              alert('Erreur: ' + data.error);
+            }
+          })
+          .catch(error => console.error('Erreur:', error));
+      }
+    }
+
+    function deleteGuide(id) {
+      if (confirm('Supprimer ce guide ? CETTE ACTION EST IRRÉVERSIBLE !')) {
+        fetch(`/admin/guides/${id}/supprimer`, { method: 'POST' })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              location.reload();
+            } else {
+              alert('Erreur: ' + data.error);
+            }
+          })
+          .catch(error => console.error('Erreur:', error));
+      }
+    }
+  </script>
+</body>
+</html>

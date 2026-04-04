@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Messages Admin</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+        .messages-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .messages-header a {
+            font-size: 1.8em;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .messages-header a:hover {
+            opacity: 0.8;
+        }
+
+        .messages-header h2 {
+            font-size: 1.3em;
+            flex: 1;
+        }
+
+        /* MESSAGES CONTAINER */
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .message-item {
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            max-width: 70%;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message-admin {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            align-self: flex-start;
+            margin-left: 0;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .message-guide {
+            background: white;
+            color: #333;
+            align-self: flex-end;
+            margin-right: 0;
+            border: 1px solid #e0e0e0;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .message-content {
+            font-size: 1em;
+            line-height: 1.4;
+            margin-bottom: 8px;
+            word-wrap: break-word;
+        }
+
+        .message-time {
+            font-size: 0.75em;
+            opacity: 0.7;
+        }
+
+        /* INPUT SECTION */
+        .message-input-section {
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            padding: 15px 20px;
+            position: sticky;
+            bottom: 0;
+            box-shadow: 0 -3px 10px rgba(0,0,0,0.08);
+        }
+
+        .message-form {
+            display: flex;
+            gap: 10px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .message-form input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+
+        .message-form input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .message-form button {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 50px;
+        }
+
+        .message-form button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .empty-messages {
+            text-align: center;
+            padding: 80px 20px;
+            color: #999;
+        }
+
+        .empty-messages-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        .empty-messages-text {
+            font-size: 1.2em;
+            color: #666;
+        }
+
+        @media (max-width: 600px) {
+            .messages-header { padding: 15px 20px; }
+            .messages-header h2 { font-size: 1.1em; }
+            .message-item { max-width: 85%; }
+            .messages-container { padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <div class="messages-header">
+        <a href="/guide/dashboard">←</a>
+        <h2>💬 Admin</h2>
+    </div>
+
+    <!-- MESSAGES -->
+    <div class="messages-container">
+        {{#if messages}}
+            {{#each messages}}
+            {{#if (eq sender_id 13)}}
+            <div class="message-item message-admin">
+                <div class="message-content">{{contenu}}</div>
+                <div class="message-time">{{date_creation}}</div>
+            </div>
+            {{else}}
+            <div class="message-item message-guide">
+                <div class="message-content">{{contenu}}</div>
+                <div class="message-time">{{date_creation}}</div>
+            </div>
+            {{/if}}
+            {{/each}}
+        {{else}}
+        <div class="empty-messages">
+            <div class="empty-messages-icon">💬</div>
+            <div class="empty-messages-text">Aucun message pour le moment</div>
+        </div>
+        {{/if}}
+    </div>
+
+    <!-- INPUT SECTION -->
+    <div class="message-input-section">
+        <form class="message-form" action="/guide/send-message" method="POST">
+            <input type="text" name="message" placeholder="Tapez votre message..." required>
+            <button type="submit">➤</button>
+        </form>
+    </div>
+</body>
+</html>
