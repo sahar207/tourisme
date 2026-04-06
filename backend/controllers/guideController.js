@@ -71,26 +71,38 @@ exports.getUploadDocs = (req, res) => {
 };
 
 /**
- * Affiche le profil du guide connecté.
+ * Get guide profile
  */
 exports.getProfile = async (req, res) => {
   const userId = req.session.user.id;
   try {
-    // Récupérer les infos utilisateur
+    // Récupérer les infos utilisateur (contient déjà telephone)
     const user = await User.findById(userId);
-    // Récupérer les infos spécifiques au guide
+    // Récupérer les infos spécifiques au guide (contient bio)
     const guide = await Guide.findByUserId(userId);
-    console.log('🔍 guide complet :', guide);
-    console.log('🔍 abonnement_fin :', guide.abonnement_fin);
-    res.render('guide/profile', {
-      user,
-      guide,
-      telephone: user.telephone || '',
-      bio: user.bio || '',
-      photo_profil: user.photo_profil || '/images/default-avatar.png'
-    });
+    
+    console.log(' Profile data - User:', user);
+    console.log(' Profile data - Guide:', guide);
+    
+    // Fusionner les données pour l'affichage
+    const profileData = {
+      id: user?.id,
+      nom_complet: user?.nom_complet || '',
+      email: user?.email || '',
+      telephone: user?.telephone || '', // vient de utilisateurs
+      bio: guide?.bio || 'Guide touristique professionnel', // vient de guides avec valeur par défaut
+      photo_profil: user?.photo_profil || '/images/default-avatar.png',
+      success: req.query.success || null,
+      error: req.query.error || null,
+      guide: guide, // Pour les infos CV, abonnement, etc.
+      abonnement_actif: guide?.abonnement_actif || 0,
+      abonnement_fin: guide?.abonnement_fin || null
+    };
+    
+    console.log(' Final profile data:', profileData);
+    res.render('guide/profile', profileData);
   } catch (err) {
-    console.error('Erreur profil guide:', err);
+    console.error(' Error getting profile:', err);
     res.status(500).send('Erreur serveur');
   }
 };
@@ -101,41 +113,102 @@ exports.updateProfile = async (req, res) => {
   const userId = req.session.user.id;
   const { nom_complet, telephone, bio } = req.body;
 
-  try {
-    // 1. Mise à jour des champs texte
-    await User.update(userId, { nom_complet, telephone, bio });
+  console.log('');
+  console.log('userId:', userId);
+  console.log('req.body:', req.body);
+  console.log('nom_complet:', nom_complet);
+  console.log('telephone:', telephone);
+  console.log('bio:', bio);
+  console.log('typeof nom_complet:', typeof nom_complet);
+  console.log('nom_complet length:', nom_complet ? nom_complet.length : 'undefined');
 
-    // 2. Gestion de la photo si un fichier a été uploadé (grâce au middleware upload.photo)
-    if (req.file) {
-      const photoPath = `/uploads/photos-profil/${req.file.filename}`;
-      await User.update(userId, { photo_profil: photoPath });
-      // Mettre à jour la session pour que la nouvelle photo s'affiche immédiatement
-      req.session.user.photo_profil = photoPath;
+  try {
+    // Validation des champs requis
+    const errors = [];
+    
+    // Debug: Check if nom_complet is actually being received
+    if (nom_complet === undefined || nom_complet === null) {
+      console.log('');
+      errors.push('Le nom complet est requis (non reçu)');
+    } else if (typeof nom_complet !== 'string') {
+      console.log('');
+      errors.push('Le nom complet doit être une chaîne de caractères');
+    } else if (nom_complet.trim() === '') {
+      console.log('');
+      errors.push('Le nom complet est requis (vide)');
+    } else {
+      console.log('');
+    }
+    
+    if (!telephone || telephone.trim() === '') {
+      errors.push('Le numéro de téléphone est requis');
+    } else if (!/^\d{8}$/.test(telephone.trim())) {
+      errors.push('Le numéro de téléphone doit contenir exactement 8 chiffres');
+    }
+    
+    // La bio est optionnelle - si vide, on met une valeur par défaut
+    const bioValue = (bio && bio.trim() !== '') ? bio.trim() : 'Guide touristique professionnel';
+
+    if (errors.length > 0) {
+      console.log('');
+      return res.redirect(`/guide/profile?error=${encodeURIComponent(errors.join(', '))}`);
     }
 
-    // Mettre à jour le nom dans la session si modifié
-    req.session.user.nom_complet = nom_complet;
+    // 1. Mettre à jour nom_complet et telephone dans utilisateurs
+    console.log('');
+    await User.update(userId, { 
+      nom_complet: nom_complet.trim(),
+      telephone: telephone.trim()
+    });
 
-    // Rediriger vers la page de profil avec un message de succès (optionnel)
-    res.redirect('/guide/profile');
+    // 2. Mettre à jour bio dans guides
+    console.log('');
+    const guide = await Guide.findByUserId(userId);
+    if (guide) {
+      await Guide.updateProfile(userId, { bio: bioValue });
+    } else {
+      // Créer l'entrée guide si elle n'existe pas
+      await Guide.create(userId);
+      await Guide.updateProfile(userId, { bio: bioValue });
+    }
+
+    // 3. Mettre à jour la session IMMÉDIATEMENT
+    console.log('');
+    req.session.user.nom_complet = nom_complet.trim();
+    req.session.user.telephone = telephone.trim();
+    req.session.user.bio = bioValue;
+
+    console.log('');
+    console.log('');
+
+    // 4. Rediriger vers la page de profil avec message de succès
+    return res.redirect('/guide/profile?success=Profil mis à jour avec succès');
+
   } catch (err) {
-    console.error('Erreur mise à jour profil:', err);
-    res.status(500).send('Erreur serveur');
+    console.error('');
+    
+    // Rediriger avec message d'erreur
+    return res.redirect('/guide/profile?error=Erreur lors de la mise à jour du profil');
   }
 };
 /**
  * Upload de la photo de profil (appelé en AJAX depuis le formulaire dédié).
  */
 exports.uploadPhoto = async (req, res) => {
+  const userId = req.session.user.id;
+  
   try {
     // Vérifier qu'un fichier a bien été envoyé
     if (!req.file) {
-      return res.status(400).json({ error: 'Aucun fichier fourni' });
+      return res.status(400).json({
+        success: false,
+        message: 'Aucun fichier fourni'
+      });
     }
 
     // Construire le chemin public de la photo
     const photoPath = `/uploads/photos-profil/${req.file.filename}`;
-    const userId = req.session.user.id;
+    console.log(' Photo upload:', photoPath);
 
     // Mettre à jour l'utilisateur en base de données
     await User.update(userId, { photo_profil: photoPath });
@@ -143,11 +216,22 @@ exports.uploadPhoto = async (req, res) => {
     // Mettre à jour la session pour que la nouvelle photo s'affiche immédiatement
     req.session.user.photo_profil = photoPath;
 
+    console.log(' Photo uploaded successfully!');
+
     // Répondre avec un JSON de succès (attendu par le frontend)
-    res.json({ success: true, photoPath });
+    return res.json({
+      success: true,
+      message: 'Photo de profil mise à jour avec succès',
+      photoPath
+    });
+
   } catch (err) {
-    console.error('Erreur upload photo:', err);
-    res.status(500).json({ error: 'Erreur serveur' });
+    console.error(' Error uploading photo:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Erreur serveur',
+      error: err.message
+    });
   }
 };
 
@@ -218,5 +302,23 @@ exports.markNotificationsRead = async (req, res) => {
 };
 exports.refreshNotifications = async (req, res) => {
   res.send('Rafraîchir notifications - à implémenter');
+};
+
+/**
+ * Get all guides for admin view
+ */
+exports.getAllGuides = async (req, res) => {
+  try {
+    const guides = await Guide.findAll();
+    console.log('📋 All guides:', guides);
+    
+    res.render('admin/guides-list', {
+      guides,
+      user: req.session.user
+    });
+  } catch (err) {
+    console.error('Error getting guides:', err);
+    res.status(500).send('Erreur serveur');
+  }
 };
 // ... toutes les autres fonctions : getProfile, updateProfile, uploadPhoto, getAbonnement, getPaiement, postPaiement, getPlans, getNewPlan, postPlan, getMessages, sendMessage, markNotificationsRead, refreshNotifications, etc.

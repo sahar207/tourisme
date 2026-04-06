@@ -324,7 +324,7 @@
       <div class="info-card">
         <div class="card-icon">📱</div>
         <div class="card-label">Téléphone</div>
-        <div class="card-value">{{user.telephone}}</div>
+        <div class="card-value">{{telephone}}</div>
         <div class="card-subtitle">À mettre à jour ci-dessous</div>
       </div>
 
@@ -332,9 +332,9 @@
       <div class="info-card">
         <div class="card-icon">💳</div>
         <div class="card-label">Abonnement</div>
-        {{#if guide.abonnement_actif}}
+        {{#if abonnement_actif}}
           <div class="card-value" style="color: #28a745;">✅ Actif</div>
-          <div class="card-subtitle">Jusqu'au {{guide.abonnement_fin}}</div>
+          <div class="card-subtitle">Jusqu'au {{abonnement_fin}}</div>
         {{else}}
           <div class="card-value" style="color: #dc3545;">Inactif</div>
           <a href="/guide/abonnement/payer" class="action-link" style="margin-top: 10px;">Activer →</a>
@@ -410,13 +410,27 @@
       
       <form action="/guide/profile/update" method="POST">
         <div class="form-group">
-          <label for="telephone">📱 Téléphone</label>
-          <input type="tel" id="telephone" name="telephone" placeholder="Entrez votre numéro de téléphone" value="{{user.telephone}}" required>
+          <label for="nom_complet">👤 Nom complet</label>
+          <input type="text" id="nom_complet" name="nom_complet" placeholder="Entrez votre nom complet" value="{{nom_complet}}" required>
+          <!-- Fallback: Si nom_complet est vide, utiliser la session -->
+          {{#if user}}
+            <script>
+              // Si le champ est vide, pré-remplir depuis la session
+              if (!document.getElementById('nom_complet').value && '{{user.nom_complet}}') {
+                document.getElementById('nom_complet').value = '{{user.nom_complet}}';
+              }
+            </script>
+          {{/if}}
         </div>
 
         <div class="form-group">
-          <label for="bio">✍️ Bio / Description</label>
-          <textarea id="bio" name="bio" placeholder="Parlez de vous, de votre expérience et de votre approche du tourisme...">{{user.bio}}</textarea>
+          <label for="telephone">📱 Téléphone</label>
+          <input type="tel" id="telephone" name="telephone" placeholder="Entrez votre numéro de téléphone" value="{{telephone}}" required>
+        </div>
+
+        <div class="form-group">
+          <label for="bio">✍️ Bio / Description (optionnel)</label>
+          <textarea id="bio" name="bio" placeholder="Parlez de vous, de votre expérience et de votre approche du tourisme...">{{bio}}</textarea>
         </div>
 
         <div class="btn-container">

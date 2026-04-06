@@ -27,6 +27,19 @@ class Guide {
     return result.affectedRows > 0;
   }
 
+  static async updateProfile(userId, updates) {
+    const allowedFields = ['bio'];
+    const entries = Object.entries(updates).filter(([key]) => allowedFields.includes(key));
+    if (entries.length === 0) return false;
+
+    const setClause = entries.map(([key]) => `${key} = ?`).join(', ');
+    const values = entries.map(([, val]) => val);
+    values.push(userId);
+    console.log('🔧 UPDATE guides profile SET', setClause, 'values:', values);
+    const [result] = await db.query(`UPDATE guides SET ${setClause} WHERE id_utilisateur = ?`, values);
+    return result.affectedRows > 0;
+  }
+
   static async findAll(statutFilter = null) {
     let query = `
       SELECT u.*, g.cv, g.diplome, g.statut, g.cv_approved, g.diplome_approved,
