@@ -302,7 +302,7 @@
         <h3 style="margin-bottom: 15px;">📋 Notifications récentes</h3>
         <div class="table">
           {{#each notifications}}
-            <div style="padding: 15px; border-bottom: 1px solid #eee; background: {{this.est_vu ? '#f8f9fa' : 'white'}};">
+            <div style="padding: 15px; border-bottom: 1px solid #eee; background: {{#if this.est_lu}}#f8f9fa{{else}}white{{/if}};">
               <strong>{{this.type}}:</strong> {{this.contenu}}
               <small style="float:right;">{{this.date_creation}}</small>
             </div>

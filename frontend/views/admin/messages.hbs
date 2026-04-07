@@ -303,13 +303,26 @@
         
         <p class="text-lg mb-4 text-white">{{contenu}}</p>
         
+        <div class="flex gap-3 mb-4">
+          <a href="/admin/reply-message?guideId={{other_user_id}}" 
+             class="btn-primary text-white px-4 py-2 rounded-lg font-semibold text-sm inline-flex items-center gap-2">
+            <i class="fas fa-reply"></i>
+            Reply to Guide
+          </a>
+          <a href="/admin/messages/{{other_user_id}}" 
+             class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-semibold text-sm inline-flex items-center gap-2 transition-all">
+            <i class="fas fa-comments"></i>
+            View Conversation
+          </a>
+        </div>
+        
         {{#if (eq id_destinataire ../user.id)}}
         <!-- Reply form -->
         <form method="POST" action="/admin/reply-message" class="glass-morphism p-4">
           <input type="hidden" name="message_id" value="{{id}}">
-          <input type="hidden" name="guide_id" value="{{id_expediteur}}">
+          <input type="hidden" name="guideId" value="{{other_user_id}}">
           <div class="flex gap-4">
-            <textarea name="reply" placeholder="Your reply..." required
+            <textarea name="contenu" placeholder="Your reply..." required
                       class="input-professional flex-1 p-4 resize-none" 
                       rows="2"></textarea>
             <button type="submit" class="btn-primary text-white px-6 py-3 font-bold">

@@ -23,8 +23,11 @@ router.get('/plans', checkGuideValidated, planController.getGuidePlans);
 router.put('/plans/:id', checkGuideValidated, planController.updatePlan);
 router.delete('/plans/:id', checkGuideValidated, planController.deletePlan);
 
-router.get('/messages', guideController.getMessages);
-router.post('/send-message', guideController.sendMessage);
+// Routes de messagerie spécifiques aux guides
+router.get('/messages', guideController.getMessages);                 // Messages avec l'admin (URL principale)
+router.get('/admin-messages', guideController.getMessages);           // Messages avec l'admin (URL alternative)
+router.post('/send-message', guideController.sendMessage);            // Envoyer message à l'admin (URL principale)
+router.post('/admin-messages/send', guideController.sendMessage);      // Envoyer à l'admin (URL alternative)
 router.post('/notifications/read', guideController.markNotificationsRead);
 router.get('/notifications/refresh', guideController.refreshNotifications);
 

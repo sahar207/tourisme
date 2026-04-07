@@ -13,8 +13,13 @@ router.get('/accept-docs/:id', adminController.acceptDocs);
 router.get('/refuse-docs/:id', adminController.refuseDocs);
 router.post('/guide/:id/:action', adminController.toggleGuideStatus);
 router.get('/messages', adminController.getMessagesList);
+router.get('/messages/', adminController.getMessagesList); // Handle trailing slash
 router.get('/messages/:guideId', adminController.getConversation);
 router.post('/messages/:guideId', adminController.sendMessage);
 router.get('/messages/:guideId/refresh', adminController.refreshConversation);
+
+// Routes pour répondre aux messages des guides
+router.get('/reply-message', adminController.getReplyForm);
+router.post('/reply-message', adminController.replyToGuide);
 
 module.exports = router;

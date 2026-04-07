@@ -262,3 +262,67 @@ exports.refreshConversation = async (req, res) => {
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
+
+/**
+ * Affiche le formulaire de réponse à un message de guide.
+ */
+exports.getReplyForm = async (req, res) => {
+  const adminId = req.session.user.id;
+  const guideId = req.query.guideId;
+
+  try {
+    // Récupérer les infos du guide
+    const guide = await User.findById(guideId);
+    if (!guide) {
+      return res.status(404).send('Guide non trouvé');
+    }
+
+    // Récupérer les messages récents avec ce guide
+    const messages = await Message.findConversation(adminId, guideId);
+
+    res.render('admin/reply', {
+      user: req.session.user,
+      guide,
+      guideId: guide.id, // Ajouter explicitement l'ID du guide
+      messages: messages.slice(-5), // 5 derniers messages
+      layout: 'minimal'
+    });
+  } catch (err) {
+    console.error('Erreur formulaire réponse:', err);
+    res.status(500).send('Erreur serveur');
+  }
+};
+
+/**
+ * Envoie une réponse à un guide.
+ */
+exports.replyToGuide = async (req, res) => {
+  const adminId = req.session.user.id;
+  const { guideId, contenu } = req.body;
+
+  if (!contenu || contenu.trim() === '') {
+    return res.redirect(`/admin/reply-message?guideId=${guideId}&error=Le message ne peut pas être vide`);
+  }
+
+  try {
+    // Créer le message
+    await Message.create({
+      id_expediteur: adminId,
+      id_destinataire: guideId,
+      contenu: contenu.trim()
+    });
+
+    // Notification au guide
+    const guide = await User.findById(guideId);
+    await Notification.create({
+      id_utilisateur: guideId,
+      type: 'MESSAGE',
+      contenu: `Nouvelle réponse de l'administrateur`
+    });
+
+    res.redirect(`/admin/reply-message?guideId=${guideId}&success=Message envoyé avec succès`);
+  } catch (err) {
+    console.error('Erreur réponse au guide:', err);
+    res.status(500).send('Erreur serveur');
+  }
+};

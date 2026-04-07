@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
     <title>Messages Admin</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -19,7 +21,6 @@
             flex-direction: column;
         }
 
-        /* HEADER */
         .messages-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -44,12 +45,20 @@
             opacity: 0.8;
         }
 
-        .messages-header h2 {
-            font-size: 1.3em;
+        .admin-info {
             flex: 1;
         }
 
-        /* MESSAGES CONTAINER */
+        .admin-name {
+            font-size: 1.3em;
+            margin-bottom: 5px;
+        }
+
+        .admin-role {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
         .messages-container {
             flex: 1;
             overflow-y: auto;
@@ -105,7 +114,6 @@
             opacity: 0.7;
         }
 
-        /* INPUT SECTION */
         .message-input-section {
             background: white;
             border-top: 1px solid #e0e0e0;
@@ -179,7 +187,7 @@
 
         @media (max-width: 600px) {
             .messages-header { padding: 15px 20px; }
-            .messages-header h2 { font-size: 1.1em; }
+            .admin-name { font-size: 1.1em; }
             .message-item { max-width: 85%; }
             .messages-container { padding: 10px; }
         }
@@ -188,40 +196,99 @@
 <body>
     <!-- HEADER -->
     <div class="messages-header">
-        <a href="/guide/dashboard">←</a>
-        <h2>💬 Admin</h2>
+        <a href="/guide/dashboard">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div class="admin-info">
+            <div class="admin-name">
+                <i class="fas fa-user-shield"></i>
+                {{#if admin}}{{admin.nom_complet}}{{else}}Administrateur{{/if}}
+            </div>
+            <div class="admin-role">Administration</div>
+        </div>
     </div>
 
     <!-- MESSAGES -->
     <div class="messages-container">
-        {{#if messages}}
+        {{#if messages.length}}
             {{#each messages}}
-            {{#if (eq sender_id 13)}}
-            <div class="message-item message-admin">
-                <div class="message-content">{{contenu}}</div>
-                <div class="message-time">{{date_creation}}</div>
-            </div>
-            {{else}}
-            <div class="message-item message-guide">
-                <div class="message-content">{{contenu}}</div>
-                <div class="message-time">{{date_creation}}</div>
-            </div>
-            {{/if}}
+                <div class="message-item {{#if (eq id_expediteur ../user.id)}}message-guide{{else}}message-admin{{/if}}">
+                    <div class="message-content">{{contenu}}</div>
+                    <div class="message-time">{{formatDate date_creation}}</div>
+                </div>
             {{/each}}
         {{else}}
-        <div class="empty-messages">
-            <div class="empty-messages-icon">💬</div>
-            <div class="empty-messages-text">Aucun message pour le moment</div>
-        </div>
+            <div class="empty-messages">
+                <div class="empty-messages-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <div class="empty-messages-text">Aucun message pour le moment</div>
+                <p style="margin-top: 10px; font-size: 0.9em;">Commencez la conversation avec l'administrateur</p>
+            </div>
         {{/if}}
     </div>
 
     <!-- INPUT SECTION -->
     <div class="message-input-section">
         <form class="message-form" action="/guide/send-message" method="POST">
-            <input type="text" name="message" placeholder="Tapez votre message..." required>
-            <button type="submit">➤</button>
+            <input type="text" name="contenu" placeholder="Tapez votre message..." required>
+            <button type="submit">
+                <i class="fas fa-paper-plane"></i>
+            </button>
         </form>
     </div>
+
+    <script>
+        // Auto-scroll vers le bas
+        function scrollToBottom() {
+            const container = document.querySelector('.messages-container');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Formatter la date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return 'À l\'instant';
+            if (diff < 3600000) return `${Math.floor(diff / 60000)} min`;
+            if (diff < 86400000) return `${Math.floor(diff / 3600000)} h`;
+            if (diff < 604800000) return `${Math.floor(diff / 86400000)} j`;
+            
+            return date.toLocaleDateString('fr-FR', { 
+                day: 'numeric', 
+                month: 'short', 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+        }
+
+        // Helper pour Handlebars
+        if (typeof Handlebars !== 'undefined') {
+            Handlebars.registerHelper('formatDate', formatDate);
+            Handlebars.registerHelper('eq', function(a, b) {
+                return a === b;
+            });
+        }
+
+        // Scroler au chargement et après envoi
+        document.addEventListener('DOMContentLoaded', () => {
+            scrollToBottom();
+            
+            // Scroller après chaque nouveau message
+            const observer = new MutationObserver(() => {
+                scrollToBottom();
+            });
+            
+            observer.observe(document.querySelector('.messages-container'), {
+                childList: true,
+                subtree: true
+            });
+        });
+
+        // Focus sur le champ input
+        document.querySelector('input[name="contenu"]').focus();
+    </script>
 </body>
 </html>

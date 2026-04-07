@@ -1,6 +1,39 @@
 const Message = require('../models/Message');
 const User = require('../models/User');
 const Guide = require('../models/Guide');
+const Notification = require('../models/Notification');
+const multer = require('multer');
+const path = require('path');
+
+// Configuration de multer pour l'upload de fichiers
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(__dirname, '../public/uploads/messages');
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Type de fichier non autorisé'));
+    }
+  }
+});
 
 /**
  * Get all conversations for a user
@@ -27,10 +60,9 @@ exports.getConversations = async (req, res) => {
       })
     );
 
-    res.render('messages/conversations', {
+    res.render('messages/chat', {
       user: req.session.user,
-      conversations: enriched,
-      layout: 'minimal'
+      conversations: enriched
     });
   } catch (err) {
     console.error('Error getting conversations:', err);
@@ -55,37 +87,64 @@ exports.getConversation = async (req, res) => {
     // Get other user details
     const otherUser = await User.findById(otherUserId);
 
-    res.render('messages/conversation', {
-      user: req.session.user,
+    res.json({
+      success: true,
       messages,
-      otherUser,
-      otherUserId,
-      layout: 'minimal'
+      otherUser
     });
   } catch (err) {
     console.error('Error getting conversation:', err);
-    res.status(500).send('Server error');
+    res.status(500).json({ success: false, error: 'Server error' });
   }
 };
 
 /**
- * Send a message
+ * Send a message (text or file)
  */
 exports.sendMessage = async (req, res) => {
   const senderId = req.session.user.id;
-  const { id_destinataire, contenu } = req.body;
+  const { id_destinataire, contenu, type_message } = req.body;
 
   try {
-    const messageId = await Message.create({
+    let messageData = {
       id_expediteur: senderId,
       id_destinataire,
-      contenu: contenu.trim()
-    });
+      contenu: contenu || '',
+      type_message: type_message || 'TEXT',
+      est_lu: 0
+    };
 
-    res.json({ success: true, messageId });
+    // Gérer l'upload de fichier
+    if (req.file) {
+      messageData.fichier_path = `/uploads/messages/${req.file.filename}`;
+      messageData.type_message = 'FILE';
+    }
+
+    const messageId = await Message.create(messageData);
+
+    // Créer une notification pour le destinataire
+    if (id_destinataire !== senderId) {
+      await Notification.create({
+        id_utilisateur: id_destinataire,
+        type: 'MESSAGE',
+        contenu: `Nouveau message de ${req.session.user.nom_complet}`
+      });
+    }
+
+    // Récupérer le message complet avec les infos de l'expéditeur
+    const message = await Message.findById(messageId);
+    const sender = await User.findById(senderId);
+    
+    res.json({ 
+      success: true, 
+      message: {
+        ...message,
+        expediteur_nom: sender.nom_complet
+      }
+    });
   } catch (err) {
     console.error('Error sending message:', err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ success: false, error: 'Server error' });
   }
 };
 
@@ -99,10 +158,22 @@ exports.getNewMessages = async (req, res) => {
 
   try {
     const messages = await Message.getNewMessages(userId, otherUserId, lastMessageId);
-    res.json(messages);
+    
+    // Enrichir avec les noms des expéditeurs
+    const enriched = await Promise.all(
+      messages.map(async (msg) => {
+        const sender = await User.findById(msg.id_expediteur);
+        return {
+          ...msg,
+          expediteur_nom: sender.nom_complet
+        };
+      })
+    );
+    
+    res.json({ success: true, messages: enriched });
   } catch (err) {
     console.error('Error getting new messages:', err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ success: false, error: 'Server error' });
   }
 };
 
@@ -116,19 +187,19 @@ exports.deleteMessage = async (req, res) => {
   try {
     const message = await Message.findById(messageId);
     if (!message) {
-      return res.status(404).json({ error: 'Message not found' });
+      return res.status(404).json({ success: false, error: 'Message not found' });
     }
 
     // Check if user owns this message
     if (message.id_expediteur !== userId) {
-      return res.status(403).json({ error: 'Unauthorized' });
+      return res.status(403).json({ success: false, error: 'Unauthorized' });
     }
 
     await Message.delete(messageId);
     res.json({ success: true });
   } catch (err) {
     console.error('Error deleting message:', err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ success: false, error: 'Server error' });
   }
 };
 
@@ -141,10 +212,22 @@ exports.searchMessages = async (req, res) => {
 
   try {
     const messages = await Message.searchMessages(userId, query);
-    res.json(messages);
+    
+    // Enrichir avec les noms des expéditeurs
+    const enriched = await Promise.all(
+      messages.map(async (msg) => {
+        const sender = await User.findById(msg.id_expediteur);
+        return {
+          ...msg,
+          expediteur_nom: sender.nom_complet
+        };
+      })
+    );
+    
+    res.json({ success: true, messages: enriched });
   } catch (err) {
     console.error('Error searching messages:', err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ success: false, error: 'Server error' });
   }
 };
 
@@ -156,9 +239,44 @@ exports.getUnreadCount = async (req, res) => {
 
   try {
     const count = await Message.getUnreadCount(userId);
-    res.json({ count });
+    res.json({ success: true, count });
   } catch (err) {
     console.error('Error getting unread count:', err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+};
+
+/**
+ * Upload file for message
+ */
+exports.uploadMessageFile = upload.single('file');
+
+/**
+ * Mark message as read
+ */
+exports.markAsRead = async (req, res) => {
+  try {
+    const messageId = req.params.id;
+    await Message.markAsRead(messageId);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error marking message as read:', err);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+};
+
+/**
+ * Get conversation statistics
+ */
+exports.getConversationStats = async (req, res) => {
+  const userId = req.session.user.id;
+  const otherUserId = req.params.userId;
+
+  try {
+    const stats = await Message.getConversationStats(userId, otherUserId);
+    res.json({ success: true, stats });
+  } catch (err) {
+    console.error('Error getting conversation stats:', err);
+    res.status(500).json({ success: false, error: 'Server error' });
   }
 };

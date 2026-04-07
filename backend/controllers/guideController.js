@@ -242,49 +242,59 @@ exports.uploadPhoto = async (req, res) => {
 exports.getMessages = async (req, res) => {
   const guideId = req.session.user.id;
   try {
+    // Trouver l'administrateur
     const admin = await User.findAdmin();
     if (!admin) {
       return res.status(500).send('Aucun administrateur trouvé.');
     }
     const adminId = admin.id;
 
-    await Message.markAsRead(adminId, guideId);
+    // Marquer les messages de l'admin comme lus
+    await Message.markConversationAsRead(adminId, guideId);
+    
+    // Récupérer la conversation complète
     const messages = await Message.findConversation(guideId, adminId);
 
     res.render('guide/messages', {
       user: req.session.user,
       messages,
-      adminId
+      adminId,
+      admin: admin
     });
   } catch (err) {
     console.error('❌ Erreur dans getMessages:', err);
     res.status(500).send('Erreur serveur : ' + err.message);
   }
 };
+
 /**
  * Envoie un message du guide à l'administrateur.
  */
 exports.sendMessage = async (req, res) => {
   const guideId = req.session.user.id;
-  const { contenu } = req.body;
+  const { contenu, type_message = 'TEXT' } = req.body;
 
   if (!contenu || contenu.trim() === '') {
     return res.redirect('/guide/messages');
   }
 
   try {
+    // Trouver l'administrateur
     const admin = await User.findAdmin();
     if (!admin) {
       return res.status(500).send('Aucun administrateur trouvé.');
     }
     const adminId = admin.id;
 
+    // Créer le message
     await Message.create({
       id_expediteur: guideId,
       id_destinataire: adminId,
-      contenu: contenu.trim()
+      contenu: contenu.trim(),
+      type_message: type_message
     });
 
+    // Créer une notification pour l'admin
     await Notification.create({
       id_utilisateur: adminId,
       type: 'MESSAGE',

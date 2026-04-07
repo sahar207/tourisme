@@ -45,12 +45,12 @@
       <!-- BOUTONS ACTIONS -->
       <div class="quick-actions">
         {{#if (eq guide.statut 'EN_ATTENTE')}}
-          <form method="POST" action="/admin/cv/{{guide.id_utilisateur}}/approve" style="display:inline;">
+          <form method="POST" action="/admin/cv/{{guide.id}}/approve" style="display:inline;">
             <button type="submit" class="btn-success">✅ Approuver CV</button>
           </form>
         {{/if}}
         {{#unless (eq guide.statut 'BLOQUE')}}
-          <form method="POST" action="/admin/guide/{{guide.id_utilisateur}}/bloquer" style="display:inline;">
+          <form method="POST" action="/admin/guide/{{guide.id}}/bloquer" style="display:inline;">
             <button type="submit" class="btn-danger" onclick="return confirm('Bloquer ce guide ?')">🚫 Bloquer</button>
           </form>
         {{/unless}}
@@ -75,8 +75,7 @@
     </div>
 
     <!-- Formulaire envoi -->
-    <form method="POST" action="/admin/messages/repondre" class="input-form">
-      <input type="hidden" name="id_guide" value="{{guide.id_utilisateur}}">
+    <form method="POST" action="/admin/messages/{{guide.id}}" class="input-form">
       <input type="text" name="contenu" placeholder="Tapez votre message..." required>
       <button type="submit">Envoyer</button>
     </form>

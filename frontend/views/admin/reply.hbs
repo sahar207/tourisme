@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <title>Répondre au message - Admin</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .reply-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .reply-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .guide-info {
+            flex: 1;
+        }
+
+        .guide-name {
+            font-size: 1.3em;
+            margin-bottom: 5px;
+        }
+
+        .guide-role {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .reply-form {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+
+        .messages-preview {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .message-item {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background: white;
+            border-left: 4px solid #667eea;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .reply-container {
+                margin: 10px;
+                border-radius: 0;
+            }
+            
+            .reply-form {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="reply-container">
+        <div class="reply-header">
+            <div class="guide-info">
+                <div class="guide-name">
+                    <i class="fas fa-user"></i>
+                    {{#if guide}}{{guide.nom_complet}}{{else}}Guide{{/if}}
+                </div>
+                <div class="guide-role">Guide touristique</div>
+            </div>
+        </div>
+
+        {{#if error}}
+            <div class="error-message">
+                <i class="fas fa-exclamation-triangle"></i>
+                {{error}}
+            </div>
+        {{/if}}
+
+        {{#if success}}
+            <div class="success-message">
+                <i class="fas fa-check-circle"></i>
+                {{success}}
+            </div>
+        {{/if}}
+
+        {{#if messages}}
+            <div class="messages-preview">
+                <h4 style="margin-bottom: 15px;">Conversation récente</h4>
+                {{#each messages}}
+                    <div class="message-item">
+                        <div>{{contenu}}</div>
+                        <div class="message-time">{{formatDate date_creation}}</div>
+                    </div>
+                {{/each}}
+            </div>
+        {{/if}}
+
+        <div class="reply-form">
+            <form action="/admin/reply-message" method="POST">
+                <input type="hidden" name="guideId" value="{{guideId}}">
+                
+                <div class="form-group">
+                    <label class="form-label">Votre réponse</label>
+                    <textarea class="form-textarea" 
+                              name="contenu" 
+                              placeholder="Tapez votre réponse au guide..." 
+                              required></textarea>
+                </div>
+
+                <div class="btn-container">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                        Envoyer la réponse
+                    </button>
+                    <a href="/admin/messages" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        Retour aux messages
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Formatter la date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return 'À l\'instant';
+            if (diff < 3600000) return `${Math.floor(diff / 60000)} min`;
+            if (diff < 86400000) return `${Math.floor(diff / 3600000)} h`;
+            if (diff < 604800000) return `${Math.floor(diff / 86400000)} j`;
+            
+            return date.toLocaleDateString('fr-FR', { 
+                day: 'numeric', 
+                month: 'short', 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+        }
+
+        // Helper pour Handlebars
+        if (typeof Handlebars !== 'undefined') {
+            Handlebars.registerHelper('formatDate', formatDate);
+        }
+
+        // Auto-focus sur le textarea
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelector('textarea[name="contenu"]').focus();
+        });
+    </script>
+</body>
+</html>
