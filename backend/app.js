@@ -4,6 +4,8 @@ const { engine } = require('express-handlebars');
 const path = require('path');
 const session = require('express-session');
 const cors = require('cors');
+const http = require('http');
+const { Server } = require('socket.io');
 
 // Connexion DB (sera utilisée par les modèles)
 require('./config/db');
@@ -22,7 +24,6 @@ const messageRoutes = require('./routes/message');
 const notificationRoutes = require('./routes/notification');
 const delegationRoutes = require('./routes/delegation');
 const gouvernoratRoutes = require('./routes/gouvernorat');
-const planLieuRoutes = require('./routes/planLieu');
 const paiementRoutes = require('./routes/paiement');
 const homeRoutes = require('./routes/home');
 
@@ -43,7 +44,7 @@ app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, '../frontend/views'));
 
 // Middlewares standards
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true })); // Changed to true for better compatibility
 app.use(express.json());
 
 app.use('/uploads', express.static(path.join(__dirname, '../frontend/public/uploads')));
@@ -64,6 +65,19 @@ app.use((req, res, next) => {
   next();
 });
 
+// Debug middleware for all incoming requests
+app.use((req, res, next) => {
+  console.log('=== DEBUG: Incoming Request ===');
+  console.log('URL:', req.url);
+  console.log('Headers:', req.headers);
+  console.log('Content-Type:', req.get('Content-Type'));
+  console.log('Body keys:', Object.keys(req.body));
+  console.log('Body:', req.body);
+  console.log('Files:', req.files || req.file);
+  console.log('=====================================');
+  next();
+});
+
 // Routes
 app.use('/', indexRoutes);
 app.use('/auth', authRoutes);
@@ -79,7 +93,6 @@ app.use('/messages', messageRoutes);
 app.use('/notifications', notificationRoutes);
 app.use('/delegations', delegationRoutes);
 app.use('/gouvernorats', gouvernoratRoutes);
-app.use('/plan-lieux', planLieuRoutes);
 app.use('/paiements', paiementRoutes);
 
 // Gestion 404
@@ -95,7 +108,7 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3002;
 
-// Démarrer le serveur avec test de connexion
+// Démarrer le serveur avec test de connexion et Socket.IO
 const startServer = async () => {
   try {
     // Importer et tester la connexion DB
@@ -103,14 +116,51 @@ const startServer = async () => {
     const isConnected = await db.testConnection();
     
     if (!isConnected) {
-      console.error('❌ Impossible de démarrer le serveur sans connexion à la base de données');
+      console.error('Impossible de démarrer le serveur sans connexion à la base de données');
       process.exit(1);
     }
     
+    // Créer le serveur HTTP pour Socket.IO
+    const server = http.createServer(app);
+    
+    // Configuration Socket.IO
+    const io = new Server(server, {
+      cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+      }
+    });
+    
+    // Gestion des connexions Socket.IO
+    io.on('connection', (socket) => {
+      console.log('Nouvelle connexion Socket.IO:', socket.id);
+      
+      // Quand un guide se connecte
+      socket.on('joinGuide', (guideId) => {
+        socket.join('guide_' + guideId);
+        console.log('Guide ' + guideId + ' rejoint la room guide_' + guideId);
+      });
+      
+      // Quand un admin se connecte
+      socket.on('joinAdmin', () => {
+        socket.join('adminRoom');
+        console.log('Admin rejoint la room adminRoom');
+      });
+      
+      // Quand un utilisateur se déconnecte
+      socket.on('disconnect', () => {
+        console.log('Utilisateur déconnecté:', socket.id);
+      });
+    });
+    
+    // Rendre io disponible pour les autres modules
+    app.set('io', io);
+    
     // Démarrer le serveur
-    app.listen(PORT, () => {
-      console.log(`🚀 Serveur démarré sur http://localhost:${PORT}`);
-      console.log('📋 Routes disponibles:');
+    server.listen(PORT, () => {
+      console.log(`Serveur démarré sur http://localhost:${PORT}`);
+      console.log('Socket.IO activé pour les notifications temps réel');
+      console.log('Routes disponibles:');
       console.log('   - GET  /');
       console.log('   - GET  /delegation/:id');
       console.log('   - GET  /guides');
@@ -120,9 +170,23 @@ const startServer = async () => {
     });
     
   } catch (error) {
-    console.error('❌ Erreur critique au démarrage:', error);
+    console.error('Erreur critique au démarrage:', error);
     process.exit(1);
   }
 };
 
 startServer();
+
+// Serveur API séparé pour les notifications
+const apiApp = express();
+apiApp.use(cors());
+apiApp.use(express.json());
+
+// Routes API pour les notifications
+apiApp.use('/api/notifications', notificationRoutes);
+
+// Démarrer le serveur API sur le port 3000
+apiApp.listen(3000, () => {
+  console.log('Backend API running on http://localhost:3000');
+  console.log('API Notifications disponibles sur /api/notifications');
+});
